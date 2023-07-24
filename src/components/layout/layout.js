@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 
-import MainHeader from "./components/layout/main-header";
+import MainHeader from "./main-header";
 
 function Layout(props) {
   return (
