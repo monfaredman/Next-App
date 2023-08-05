@@ -1,6 +1,5 @@
 import { Fragment } from "react";
-import { useRouter } from "next/router";
-
+import Head from "next/head";
 import { getFilteredEvents } from "../../../helpers/api-util";
 import EventList from "../../../components/events/event-list";
 import ResultsTitle from "../../../components/events/results-title";
@@ -8,9 +7,17 @@ import Button from "../../../components/ui/button";
 import ErrorAlert from "../../../components/ui/error-alert";
 
 function FilteredEventsPage(props) {
-  if (props.has) {
+  let pageHeadData = (
+    <Head>
+      <title>Filtered Events</title>
+      <meta name="description" content="A list of filtered events." />
+    </Head>
+  );
+
+  if (props.hasError) {
     return (
       <Fragment>
+        {pageHeadData}
         <ErrorAlert>
           <p>Invalid filter. Please adjust your values!</p>
         </ErrorAlert>
@@ -21,14 +28,20 @@ function FilteredEventsPage(props) {
     );
   }
 
-  const filteredEvents = getFilteredEvents({
-    year: numYear,
-    month: numMonth,
-  });
-
-  if (!filteredEvents || filteredEvents.length === 0) {
+  pageHeadData = (
+    <Head>
+      <title>Filtered Events</title>
+      <meta
+        name="description"
+        content={`All events for ${props.date.month}/${props.date.year}.`}
+      />
+    </Head>
+  );
+  if (!props.events || props.events.length === 0) {
     return (
       <Fragment>
+        {pageHeadData}
+
         <ErrorAlert>
           <p>No events found for the chosen filter!</p>
         </ErrorAlert>
@@ -39,12 +52,13 @@ function FilteredEventsPage(props) {
     );
   }
 
-  const date = new Date(numYear, numMonth - 1);
+  const date = new Date(props.date.year, props.date.month - 1);
 
   return (
     <Fragment>
+      {pageHeadData}
       <ResultsTitle date={date} />
-      <EventList items={filteredEvents} />
+      <EventList items={props.events} />
     </Fragment>
   );
 }
@@ -68,19 +82,28 @@ export async function getServerSideProps(context) {
     numMonth < 1 ||
     numMonth > 12
   ) {
-    return (props: {
-      hasError: true,
-    });
+    return {
+      props: { hasError: true },
+      // notFound: true,
+      // redirect: {
+      //   destination: '/error'
+      // }
+    };
   }
 
-  const filteredEvents = getFilteredEvents({
+  const filteredEvents = await getFilteredEvents({
     year: numYear,
     month: numMonth,
   });
 
   return {
-    props: {},
+    props: {
+      events: filteredEvents,
+      date: {
+        year: numYear,
+        month: numMonth,
+      },
+    },
   };
 }
-
 export default FilteredEventsPage;
