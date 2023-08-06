@@ -30,7 +30,7 @@ export default function handler(req, res) {
         text: "A first comment!",
       },
       {
-        id: "c1",
+        id: "c2",
         name: "Monfared",
         text: "A second comment!",
       },
