@@ -23,8 +23,12 @@
   text-decoration: none;
   color: #94fdfd;
 }
-
+.navigation ul {
+  display: flex;
+  justify-content: space-between;
+}
 .navigation a {
+  margin: auto 2rem;
   text-decoration: none;
   color: #74dacc;
   font-size: 1rem;
