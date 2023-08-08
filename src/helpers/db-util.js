@@ -29,3 +29,11 @@ export async function getAllDocuments(client, collectionName, sort) {
   const documents = await collection.find().sort(sort).toArray();
   return documents;
 }
+
+export async function checkExistUser(client, email) {
+  await client.connect();
+  const db = client.db();
+  const collection = db.collection("users");
+  const result = await collection.findOne(email);
+  return result;
+}

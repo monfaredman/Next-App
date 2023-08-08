@@ -15,6 +15,7 @@ export default async function handler(req, res) {
       client = await connectDatabase("newsletter");
     } catch (error) {
       res.status(500).json({ message: "Connecting to the database failed!" });
+      client.close();
       return;
     }
 
@@ -22,9 +23,11 @@ export default async function handler(req, res) {
       await insertDocument(client, "newsletter", { email: userEmail });
     } catch (error) {
       res.status(500).json({ message: "Inserting data failed!" });
+      client.close();
       return;
     }
 
     res.status(201).json({ message: "Signed up" });
+    client.close();
   }
 }

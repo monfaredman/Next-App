@@ -12,6 +12,7 @@ export default async function handler(req, res) {
     client = await connectDatabase("comments");
   } catch (error) {
     res.status(500).json({ message: "Connecting to the database failed!" });
+    client.close();
     return;
   }
 
@@ -39,11 +40,13 @@ export default async function handler(req, res) {
       result = await insertDocument(client, "comments", newComment);
     } catch (error) {
       res.status(500).json({ message: "Inserting data failed!" });
+      client.close();
       return;
     }
     newComment._id = result.insertedId;
 
     res.status(201).json({ message: "Added comment.", comment: newComment });
+    client.close();
   }
 
   if (req.method === "GET") {
@@ -53,7 +56,6 @@ export default async function handler(req, res) {
     } catch (error) {
       res.status(500).json({ message: "Getting comments failed." });
     }
-
     client.close();
   }
 }
