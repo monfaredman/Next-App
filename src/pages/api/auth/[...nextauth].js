@@ -11,7 +11,6 @@ export const authOptions = {
         const client = await connectDatabase("users");
 
         const user = await checkExistUser(client, { email: credentials.email });
-
         if (!user) {
           throw new Error("No user found!");
         }

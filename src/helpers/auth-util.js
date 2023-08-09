@@ -1,4 +1,4 @@
-import { hash } from "bcryptjs";
+import bcrypt, { hash } from "bcryptjs";
 
 export async function hashPassword(password) {
   const saltRounds = 12;
@@ -7,6 +7,6 @@ export async function hashPassword(password) {
 }
 
 export async function verifyPassword(password, hashedPassword) {
-  const isValid = await computeFromManifest(password, hashedPassword);
+  const isValid = await bcrypt.compare(password, hashedPassword);
   return isValid;
 }

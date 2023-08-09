@@ -2,8 +2,10 @@ import { useState, useContext, useRef } from "react";
 import { signIn } from "next-auth/react";
 import NotificationContext from "@/store/notification-context";
 import classes from "./auth-form.module.css";
+import { useRouter } from "next/router";
 
 function AuthForm() {
+  const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
   const notificationCtx = useContext(NotificationContext);
   const emailInputRef = useRef();
@@ -20,7 +22,7 @@ function AuthForm() {
     const enteredPassword = passwordInputRef.current.value;
     notificationCtx.showNotification({
       title: "Singing in...",
-      message: "Registering for newsletter.",
+      message: "Singing in for your account.",
       status: "pending",
     });
 
@@ -30,7 +32,20 @@ function AuthForm() {
         password: enteredPassword,
         email: enteredEmail,
       });
-      console.log(result);
+      if (result.error) {
+        notificationCtx.showNotification({
+          title: "Error!",
+          message: result.error || "Something went wrong!",
+          status: "error",
+        });
+        return;
+      }
+      notificationCtx.showNotification({
+        title: "Success!",
+        message: "Successfully singed in.",
+        status: "success",
+      });
+      router.replace("/");
     } else {
       fetch("/api/auth/signup", {
         method: "POST",
