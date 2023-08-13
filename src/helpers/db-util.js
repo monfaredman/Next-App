@@ -37,3 +37,16 @@ export async function checkExistUser(client, email) {
   const result = await collection.findOne(email);
   return result;
 }
+
+export async function updateDocument(
+  client,
+  collectionName,
+  email,
+  newDocument
+) {
+  await client.connect();
+  const db = client.db();
+  const collection = db.collection(collectionName);
+  const result = await collection.updateOne(email, newDocument);
+  return result;
+}

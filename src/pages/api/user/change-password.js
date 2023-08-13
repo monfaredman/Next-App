@@ -1,15 +1,18 @@
 import { getServerSession } from "next-auth/next";
-
 import { hashPassword, verifyPassword } from "@/helpers/auth-util";
-import { connectToDatabase } from "../../../lib/db";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import {
+  connectDatabase,
+  updateDocument,
+  checkExistUser,
+} from "@/helpers/db-util";
 
 async function handler(req, res) {
   if (req.method !== "PATCH") {
     return;
   }
 
-  const session = await getServerSession({ req: req });
-
+  const session = await getServerSession(req, res, authOptions);
   if (!session) {
     res.status(401).json({ message: "Not authenticated!" });
     return;
@@ -19,11 +22,17 @@ async function handler(req, res) {
   const oldPassword = req.body.oldPassword;
   const newPassword = req.body.newPassword;
 
-  const client = await connectToDatabase();
+  let client;
 
-  const usersCollection = client.db().collection("users");
+  try {
+    client = await connectDatabase("users");
+  } catch (error) {
+    res.status(500).json({ message: "Connecting to the database failed!" });
+    client.close();
+    return;
+  }
 
-  const user = await usersCollection.findOne({ email: userEmail });
+  const user = await checkExistUser(client, { email: userEmail });
 
   if (!user) {
     res.status(404).json({ message: "User not found." });
@@ -41,12 +50,27 @@ async function handler(req, res) {
     return;
   }
 
-  const hashedPassword = await hashPassword(newPassword);
+  let hashedPassword;
+  try {
+    hashedPassword = await hashPassword(newPassword);
+  } catch (error) {
+    res.status(500).json({ message: "Inserting data failed!" });
+    client.close();
+    return;
+  }
 
-  const result = await usersCollection.updateOne(
-    { email: userEmail },
-    { $set: { password: hashedPassword } }
-  );
+  try {
+    await updateDocument(
+      client,
+      "users",
+      { email: userEmail },
+      { $set: { password: hashedPassword } }
+    );
+  } catch (error) {
+    res.status(500).json({ message: "Updating data failed!" });
+    client.close();
+    return;
+  }
 
   client.close();
   res.status(200).json({ message: "Password updated!" });

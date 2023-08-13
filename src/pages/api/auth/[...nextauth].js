@@ -4,7 +4,10 @@ import { connectDatabase, checkExistUser } from "@/helpers/db-util";
 import { verifyPassword } from "@/helpers/auth-util";
 
 export const authOptions = {
-  session: { strategy: "jwt" },
+  session: {
+    strategy: "jwt",
+  },
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     CredentialsProvider({
       async authorize(credentials) {

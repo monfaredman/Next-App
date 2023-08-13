@@ -8,7 +8,7 @@ function ProfilePage() {
 
 export async function getServerSideProps(context) {
   const session = await getServerSession(context.req, context.res, authOptions);
-  console.log(session);
+  const jsonSession = JSON.stringify(session);
   if (!session) {
     return {
       redirect: {
@@ -17,8 +17,7 @@ export async function getServerSideProps(context) {
       },
     };
   }
-
-  return { props: { session } };
+  return { props: { jsonSession } };
 }
 
 export default ProfilePage;
