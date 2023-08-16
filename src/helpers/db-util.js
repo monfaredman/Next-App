@@ -1,7 +1,9 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
 
 export async function connectDatabase(collection) {
-  const url = `mongodb+srv://moslemhosseinpour1998:moslemhosseinpour1998@cluster1.huk5vpv.mongodb.net/${collection}?retryWrites=true&w=majority`;
+  const connectionString = `mongodb+srv://${process.env.mongodb_username}:${process.env.mongodb_password}@${process.env.mongodb_clustorname}.huk5vpv.mongodb.net/${collection}?retryWrites=true&w=majority`;
+  // const url = `mongodb+srv://moslemhosseinpour1998:moslemhosseinpour1998@cluster1.huk5vpv.mongodb.net/${collection}?retryWrites=true&w=majority`;
+  const url = connectionString;
 
   const client = new MongoClient(url, {
     serverApi: {
